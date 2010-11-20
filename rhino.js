@@ -20,7 +20,7 @@ Copyright (c) 2002 Douglas Crockford  (www.JSLint.com) Rhino Edition
 
     if (!JSON) {
         JSON = {
-            decode: function (s) {
+            parse: function (s) {
                 var evil = eval;
                 try {
                     return evil('(' + s + ')');
@@ -67,7 +67,7 @@ Copyright (c) 2002 Douglas Crockford  (www.JSLint.com) Rhino Edition
         if (!json) {
             usage(1, 'Can\'t read configuration file: ' + filename);
         }
-        options = JSON.decode(json);
+        options = JSON.parse(json);
         if (!options) {
             usage(1, 'Not a valid configuration file (JSON)');
         }
