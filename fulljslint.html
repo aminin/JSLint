@@ -145,11 +145,7 @@ Code Quality Tool</big></p>
         above and click a <input type="button" name="jslint" value="JSLint">
         button. </div>
       <div style="margin: 1em; border: 2px solid black; padding: 1em; background-color: lightpink;">
-      <p>Use of strict mode is highly recommended, but do not use strict mode unless you
-        fully understand what it does. Strict mode, by design, will break programs.
-        </p><p>
-        Do not concatenate strict mode and non-strict mode code together. Doing so can
-        cause the non-strict code to fail.</p>
+      <p><a href="http://www.yuiblog.com/blog/2010/12/14/strict-mode-is-coming-to-town/">Strict mode is coming to town.</a></p>
       </div>
 </div>
 <br clear="all">
@@ -200,7 +196,7 @@ Code Quality Tool</big></p>
   <br>
     <input type="checkbox" id="JSLINT_FRAGMENT" title="fragment"><label for="JSLINT_FRAGMENT" title="fragment">Tolerate <tt>HTML</tt> fragments</label>
   <br>
-    <input type="checkbox" id="JSLINT_ES5" title="es5"><label for="JSLINT_ES5" title="es5">Tolerate ES5 syntax</label>
+    <input type="checkbox" id="JSLINT_ESV" title="es5"><label for="JSLINT_ESV" title="es5">Tolerate ES5 syntax</label>
   </div>
   <div class="leftcolumn">
     <input type="checkbox" id="JSLINT_ONEVAR" title="onevar" name=goodpart><label for="JSLINT_ONEVAR" title="onevar">Allow one <tt>var</tt> statement per function</label>
@@ -252,20 +248,20 @@ Code Quality Tool</big></p>
   <a href="http://tech.groups.yahoo.com/group/jslint_com/" target="_blank">Join
   the JSLint Group.</a> </p>
  <script>
-"use strict";
 ADSAFE.id("JSLINT_");
 </script>
-<script src="widget.js"></script>
+<script src="fullinit_ui.js"></script>
 <script>
-"use strict";
 ADSAFE.go("JSLINT_", function (dom, lib) {
-    lib.init_jslint_ui(dom);
+    "use strict";
+    lib.init_ui(dom);
 });
 </script>
 
 </div>
 <a href="http://www.JSLint.com/"><img src="jslintpill.gif" width="36" height="17" border="0"></a>
 <a href="http://tech.groups.yahoo.com/group/jslint_com/"><img src="y.gif" width="31" height="17" border="0"></a>
+<a href="https://github.com/douglascrockford/JSLint"><img src="github.gif" width="39" height="16" border="0"></a>
 <a href="http://www.ADsafe.org/"><img src="adsafepill.gif" width="36" height="17" border="0"></a>
 <a href="http://www.JSON.org/"><img src="jsonpill.gif" width="36" height="17" border="0"></a>
 <a href="http://www.1and1.com/?k_id=10219574"><img src="1and1pill.gif" width="36" height="17" border="0"></a>
