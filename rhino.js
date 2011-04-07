@@ -9,48 +9,183 @@ Copyright (c) 2002 Douglas Crockford  (www.JSLint.com) Rhino Edition
 /*global JSLINT */
 /*jslint rhino: true, strict: false */
 
-(function (a) {
-	var e, i, j, input, fails = 0;
+(function (args) {
+    var JSON = JSON,
+        e,
+        i,
+        n,
+        input,
+        fn,
+        config;
 
-	if (!a.length) {
-		print("Setup problem: this function expects the first argument to be the absolute path to fulljslint.js - no arguments passed");
-		quit(1);
-	}
-	load(a[0]);
-	if (typeof(JSLINT) === undefined) {
-		print("Setup problem: this function expects the first argument to be the absolute path to fulljslint.js - the path " + a[0] + " does not contain the JSLINT object");
-		quit(1);
-	}
-	if (a.length < 2) {
-		print("Usage: jslint file.js");
-		quit(1);
-	}
-	for (i = 1; i < a.length; i += 1) {
-		input = readFile(a[i]);
-		if (!input) {
-			print("jslint: Couldn't open file '" + a[i] + "'.");
-			fails += 1;
-			continue;
-		}
-		if (!JSLINT(input, {bitwise: true, eqeqeq: true, immed: true,
-				newcap: true, nomen: true, onevar: true, plusplus: true,
-				regexp: true, rhino: true, undef: true, white: true})) {
-			print("jslint: Problems found in " + a[i]);
-			for (j = 0; j < JSLINT.errors.length; j += 1) {
-				e = JSLINT.errors[j];
-				if (e) {
-					print('Lint at line ' + e.line + ' character ' +
-							e.character + ': ' + e.reason);
-					print((e.evidence || '').replace(/^\s*(\S*(\s+\S+)*)\s*$/, "$1"));
-					print('');
-				}
-			}
-			fails += 1;
-			continue;
-		}
-		print("jslint: No problems found in " + a[i]);
-	}
-	if (fails) {
-		quit(2);
-	}
+    if (!JSON) {
+        JSON = {
+            parse: function (s) {
+                var evil = eval;
+                try {
+                    return evil('(' + s + ')');
+                }
+                catch (e) {
+                    return;
+                }
+            }
+        };
+    }
+
+    function is_own(object, name) {
+        return Object.prototype.hasOwnProperty.call(object, name);
+    }
+
+    function combine(t, o) {
+        var n;
+        for (n in o) {
+            if (is_own(o, n)) {
+                t[n] = o[n];
+            }
+        }
+    }
+
+    function usage(exitcode, msg) {
+        if (msg) {
+            print(msg);
+        }
+        print("Usage: jslint.js [-hp] [-o options.js] [-s key=value] file.js [file2.js] [...]]");
+        print("\t-h\tshow this help");
+        print("\t-p\tproduce parseable output");
+        print("\t-o FILE\tload options from JSON file");
+        print("\t-s k=v\tset option 'k' to 'v'");
+        print("");
+        quit(exitcode);
+    }
+
+    function load_options(filename) {
+        var json, options;
+        if (!filename) {
+            usage(1, 'No configuration file specified for option -o');
+        }
+        json = readFile(filename);
+        if (!json) {
+            usage(1, 'Can\'t read configuration file: ' + filename);
+        }
+        options = JSON.parse(json);
+        if (!options) {
+            usage(1, 'Not a valid configuration file (JSON)');
+        }
+        return options;
+    }
+
+    function add_option(dict, value) {
+        var a, k, v;
+        if (!value) {
+            usage(1, "No value specified for option '-s'");
+        }
+        a = value.split('=', 2);
+        k = a[0];
+        v = a[1];
+        switch (v) {
+        case 'true':
+            v = true;
+            break;
+        case 'false':
+            v = false;
+            break;
+        default:
+        }
+        dict[k] = v || true;
+    }
+
+    function parse_args(args) {
+        var arg,
+            files = [],
+            hasopts = true,
+            moreopts = {},
+            parseable = false,
+            options = {
+                bitwise: true,
+                eqeqeq: true,
+                immed: true,
+                newcap: true,
+                nomen: true,
+                onevar: true,
+                plusplus: true,
+                regexp: true,
+                rhino: true,
+                undef: true,
+                white: true
+            };
+
+        do {
+            arg = args.shift();
+            if (!arg) {
+                continue;
+            }
+            if (arg && (arg === '--')) {
+                hasopts = false;
+                continue;
+            }
+            if (hasopts && arg.charAt(0) === '-') {
+                switch (arg.charAt(1)) {
+                case 'o':
+                    options = load_options(args.shift());
+                    break;
+                case 's':
+                    add_option(moreopts, args.shift());
+                    break;
+                case 'h':
+                    usage(0);
+                    break;
+                case 'p':
+                    parseable = true;
+                    break;
+                default:
+                    usage(1, "unknown option '" + arg + "'");
+                    quit();
+                }
+                continue;
+            }
+            files.push(arg);
+        } while (arg);
+        if (!files.length) {
+            usage(1, 'no files specified');
+        }
+        combine(options, moreopts);
+        return {
+            files: files,
+            options: options,
+            parseable: parseable
+        };
+    }
+
+    config = parse_args(args);
+
+    for (n = 0; n < config.files.length; n += 1) {
+        fn = config.files[n];
+        input = readFile(fn);
+        if (!input) {
+            print("jslint: Couldn't open file '" + fn + "'.");
+            quit(1);
+        }
+
+        if (!JSLINT(input, config.options)) {
+            for (i = 0; i < JSLINT.errors.length; i += 1) {
+                e = JSLINT.errors[i];
+                if (e) {
+                    if (config.parseable) {
+                        print(fn + ':' + e.line + ':' + e.character + ': ' + e.reason);
+                    }
+                    else {
+                        print('Lint at line ' + e.line + ' character ' +
+                                e.character + ': ' + e.reason);
+                        print((e.evidence || '').replace(/^\s*(\S*(\s+\S+)*)\s*$/, "$1"));
+                    }
+                    print('');
+                }
+            }
+            continue;
+        } else {
+            print("jslint: No problems found in " + fn);
+            continue;
+        }
+    }
+    quit(0);
 }(arguments));

@@ -1,7 +1,25 @@
-JSLint, The JavaScript Code Quality Tool
+JSLint, The JavaScript Code Quality Tool - with Rhino runner
 
 Douglas Crockford
 douglas@crockford.com
+
+--- Rhino runner note -------------------------------------------------------
+
+This is a special branch containing an extended Rhino runner of the one that
+was included upstream but is now removed.
+
+This project is intended to provide the original upstream along with this
+runner.
+
+Bugfixes and suggestions should be targeted here:
+
+https://github.com/AndyStricker/JSLint
+
+Or by writing an E-Mail to me:
+
+Andreas Stricker <astricker@knitter.ch>
+
+----------------------------------------------------------------------------
 
 2010-12-02
 
