@@ -18,6 +18,10 @@ Copyright (c) 2002 Douglas Crockford  (www.JSLint.com) Rhino Edition
         fn,
         config;
 
+	if (args.length) {
+		load(args[0]);
+		args.shift();
+	}
     if (!JSON) {
         JSON = {
             parse: function (s) {
@@ -49,7 +53,7 @@ Copyright (c) 2002 Douglas Crockford  (www.JSLint.com) Rhino Edition
         if (msg) {
             print(msg);
         }
-        print("Usage: jslint.js [-hp] [-o options.js] [-s key=value] file.js [file2.js] [...]]");
+        print("Usage: jslint [-hp] [-o options.js] [-s key=value] file.js [file2.js] [...]]");
         print("\t-h\tshow this help");
         print("\t-p\tproduce parseable output");
         print("\t-o FILE\tload options from JSON file");
