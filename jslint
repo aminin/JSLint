@@ -1,2 +1,15 @@
 #!/bin/sh
-java -jar /usr/share/java/js.jar /usr/share/jslint/rhino.js /usr/share/jslint/fulljslint.js $@
+# can't trust the return code, apparently
+
+output=`java -jar /usr/share/java/js.jar /usr/share/jslint/rhino.js /usr/share/jslint/jslint.js $@`
+echo "$output"
+exit=0
+
+for arg in $@
+do
+	if [[ -e "$arg" && ! "$output" =~ "jslint: No problems found in $arg" ]]; then
+		$exit=1
+	fi
+done
+
+exit $exit
