@@ -1,5 +1,5 @@
 // intercept.js
-// 2011-03-06
+// 2011-04-20
 
 // This file makes it possible for JSLint to run as an ADsafe widget by
 // adding lib features.
@@ -25,7 +25,7 @@
 ADSAFE._intercept(function (id, dom, lib, bunch) {
     "use strict";
 
-// Give every widget access to a cookie. The name of the cookie will be the
+// Give every widget access to a JSON cookie. The name of the cookie will be the
 // same as the id of the widget.
 
     lib.cookie = {
@@ -76,9 +76,14 @@ ADSAFE._intercept(function (id, dom, lib, bunch) {
 // widget access to the current edition string.
 
     if (id === 'JSLINT_') {
-        lib.jslint = function (source, options, output) {
+        lib.jslint = function (source, options, output, then) {
+            output.___nodes___[0].innerHTML = "Working.";
+            var now, report, then = Date.now();
             JSLINT(source, options);
-            output.___nodes___[0].innerHTML = JSLINT.report();
+            report = JSLINT.report();
+            now = Date.now();
+            output.___nodes___[0].innerHTML = report;
+            return now - then;
         };
         lib.edition = function () {
             return JSLINT.edition;

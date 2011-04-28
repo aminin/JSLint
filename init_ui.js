@@ -1,5 +1,5 @@
 // init_ui.js
-// 2011-03-13
+// 2011-04-19
 
 // This is the web browser companion to fulljslint.js. It is an ADsafe
 // lib file that implements a web ui by adding behavior to the widget's
@@ -10,19 +10,19 @@
 
 // option = {adsafe: true, fragment: false}
 
-/*properties check, cookie, each, edition, get, getCheck, getTitle,
-    getValue, has, indent, isArray, join, jslint, length, lib, maxerr, maxlen,
-    on, predef, push, q, select, set, split, stringify, target, tree, value
+/*properties check, cookie, each, edition, get, getCheck, getTitle, getValue,
+    has, indent, isArray, join, jslint, length, lib, maxerr, maxlen, on,
+    predef, push, q, select, set, split, stringify, style, target, tree, value
 */
 
-/*global ADSAFE, JSMAX */
 
 ADSAFE.lib("init_ui", function (lib) {
     "use strict";
 
     return function (dom) {
-        var checkboxes = dom.q('input_checkbox'),
-            goodparts = checkboxes.q('&goodpart'),
+        var table = dom.q('#JSLINT_TABLE'),
+            boxes = table.q('span'),
+            goodparts = boxes.q('.goodpart'),
             indent = dom.q('#JSLINT_INDENT'),
             input = dom.q('#JSLINT_INPUT'),
             jslintstring = dom.q('#JSLINT_JSLINTSTRING'),
@@ -35,17 +35,21 @@ ADSAFE.lib("init_ui", function (lib) {
 
         function show_jslint_control() {
 
-// Build and display a jslint control comment.
+// Build and display a /*jslint*/ control comment.
 // The comment can be copied into a .js file.
 
-            var a = [], name;
-            for (name in option) {
-                if (ADSAFE.has(option, name)) {
-                    if (ADSAFE.get(option, name) === true) {
-                        a.push(name + ': true');
-                    }
+            var a = [];
+
+            boxes.each(function (bunch) {
+                var name = bunch.getTitle(),
+                    value = ADSAFE.get(option, name);
+                if (typeof value === 'boolean') {
+                    a.push(name + ': ' + value);
+                    bunch.style('backgroundColor', value ? 'black' : 'white');
+                } else {
+                    bunch.style('backgroundColor', 'gainsboro');
                 }
-            }
+            });
             if (typeof option.maxerr === 'number' && option.maxerr >= 0) {
                 a.push('maxerr: ' + option.maxerr);
             }
@@ -63,9 +67,6 @@ ADSAFE.lib("init_ui", function (lib) {
         }
 
         function show_options() {
-            checkboxes.each(function (bunch) {
-                bunch.check(ADSAFE.get(option, bunch.getTitle()));
-            });
             indent.value(String(option.indent));
             maxlen.value(String(option.maxlen || ''));
             maxerr.value(String(option.maxerr));
@@ -73,8 +74,16 @@ ADSAFE.lib("init_ui", function (lib) {
             show_jslint_control();
         }
 
-        function update_check(event) {
-            option[event.target.getTitle()] = event.target.getCheck();
+        function update_box(event) {
+
+//  Boxes are tristate, cycling true, false, undefined.
+
+            var title = event.target.getTitle();
+            if (title) {
+                ADSAFE.set(option, title,
+                    ADSAFE.get(option, title) === true ? false :
+                    ADSAFE.get(option, title) === false ? undefined : true);
+            }
             show_jslint_control();
         }
 
@@ -82,15 +91,17 @@ ADSAFE.lib("init_ui", function (lib) {
             var value = event.target.getValue();
             if (value.length === 0 || +value < 0 || !isFinite(value)) {
                 value = '';
+                ADSAFE.set(option, event.target.getTitle(), undefined);
+            } else {
+                ADSAFE.set(option, event.target.getTitle(), +value);
             }
-            option[event.target.getTitle()] = +value;
             event.target.value(String(value));
             show_jslint_control();
         }
 
         function update_list(event) {
             var value = event.target.getValue().split(/\s*,\s*/);
-            option[event.target.getTitle()] = value;
+            ADSAFE.set(option, event.target.getTitle(), value);
             event.target.value(value.join(', '));
             show_jslint_control();
         }
@@ -125,7 +136,7 @@ ADSAFE.lib("init_ui", function (lib) {
 
 // Call JSLint and display the report.
 
-            lib.jslint(input.getValue(), option, output);
+            tree.value(lib.jslint(input.getValue(), option, output) / 1000 + ' seconds.');
             input.select();
             return false;
         });
@@ -162,13 +173,13 @@ ADSAFE.lib("init_ui", function (lib) {
 
         dom.q('#JSLINT_GOODPARTS').on('click', function (e) {
             goodparts.each(function (bunch) {
-                option[bunch.getTitle()] = true;
+                ADSAFE.set(option, bunch.getTitle(), true);
             });
             option.indent = 4;
             show_options();
         });
 
-        checkboxes.on('click', update_check);
+        table.on('click', update_box);
         indent.on('change', update_number);
         maxerr.on('change', update_number);
         maxlen.on('change', update_number);
