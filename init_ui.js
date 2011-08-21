@@ -1,5 +1,5 @@
 // init_ui.js
-// 2011-04-19
+// 2011-07-19
 
 // This is the web browser companion to fulljslint.js. It is an ADsafe
 // lib file that implements a web ui by adding behavior to the widget's
@@ -22,7 +22,6 @@ ADSAFE.lib("init_ui", function (lib) {
     return function (dom) {
         var table = dom.q('#JSLINT_TABLE'),
             boxes = table.q('span'),
-            goodparts = boxes.q('.goodpart'),
             indent = dom.q('#JSLINT_INDENT'),
             input = dom.q('#JSLINT_INPUT'),
             jslintstring = dom.q('#JSLINT_JSLINTSTRING'),
@@ -51,13 +50,13 @@ ADSAFE.lib("init_ui", function (lib) {
                 }
             });
             if (typeof option.maxerr === 'number' && option.maxerr >= 0) {
-                a.push('maxerr: ' + option.maxerr);
+                a.push('maxerr: ' + String(option.maxerr));
             }
             if (typeof option.maxlen === 'number' && option.maxlen >= 0) {
-                a.push('maxlen: ' + option.maxlen);
+                a.push('maxlen: ' + String(option.maxlen));
             }
             if (typeof option.indent === 'number' && option.indent >= 0) {
-                a.push('indent: ' + option.indent);
+                a.push('indent: ' + String(option.indent));
             }
             jslintstring.value('/*jslint ' + a.join(', ') + ' */');
 
@@ -131,51 +130,37 @@ ADSAFE.lib("init_ui", function (lib) {
 
 // Add click event handlers to the [JSLint] and [clear] buttons.
 
-        dom.q('input&jslint').on('click', function (e) {
+        dom.q('input&jslint').on('click', function () {
             tree.value('');
 
 // Call JSLint and display the report.
 
-            tree.value(lib.jslint(input.getValue(), option, output) / 1000 + ' seconds.');
+            tree.value(String(lib.jslint(input.getValue(), option, output) / 1000) + ' seconds.');
             input.select();
             return false;
         });
 
-        dom.q('input&tree').on('click', function (e) {
+        dom.q('input&tree').on('click', function () {
             output.value('Tree:');
             tree.value(JSON.stringify(lib.tree(), [
-                'label', 'value', 'arity', 'name', 'first', 'second',
-                'third', 'block', 'else', 'comments', 'comment', 'quote'
+                'label', 'id', 'string', 'number', 'arity', 'name', 'first',
+                'second', 'third', 'block', 'else', 'quote', 'type'
             ], 4));
             input.select();
         });
 
-        //dom.q('input&jsmax').on('click', function (e) {
-        //    output.value('JSMax:');
-        //    tree.value(JSMAX(lib.tree()));
-        //    input.select();
-        //});
-
-        dom.q('input&clear').on('click', function (e) {
+        dom.q('input&clear').on('click', function () {
             output.value('');
             tree.value('');
             input.value('').select();
         });
 
 
-        dom.q('#JSLINT_CLEARALL').on('click', function (e) {
+        dom.q('#JSLINT_CLEARALL').on('click', function () {
             option = {
                 indent: 4,
                 maxerr: 50
             };
-            show_options();
-        });
-
-        dom.q('#JSLINT_GOODPARTS').on('click', function (e) {
-            goodparts.each(function (bunch) {
-                ADSAFE.set(option, bunch.getTitle(), true);
-            });
-            option.indent = 4;
             show_options();
         });
 
@@ -185,7 +170,7 @@ ADSAFE.lib("init_ui", function (lib) {
         maxlen.on('change', update_number);
         predefined.on('change', update_list);
         input
-            .on('change', function (e) {
+            .on('change', function () {
                 output.value('');
             })
             .select();

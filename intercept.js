@@ -1,5 +1,5 @@
 // intercept.js
-// 2011-04-20
+// 2011-06-13
 
 // This file makes it possible for JSLint to run as an ADsafe widget by
 // adding lib features.
@@ -13,20 +13,20 @@
 
 // And it provides access to the syntax tree that JSLint constructed.
 
-/*jslint nomen: false */
+/*jslint nomen: true, unparam: true */
 
 /*global ADSAFE, document, JSLINT */
 
 /*properties ___nodes___, _intercept, cookie, edition, get, getTime,
-    indexOf, innerHTML, jslint, length, parse, replace, report, set,
+    indexOf, innerHTML, jslint, length, now, parse, replace, report, set,
     setTime, slice, stringify, toGMTString, tree
 */
 
 ADSAFE._intercept(function (id, dom, lib, bunch) {
     "use strict";
 
-// Give every widget access to a JSON cookie. The name of the cookie will be the
-// same as the id of the widget.
+// Give every widget access to a JSON cookie. The name of the cookie will be
+// the same as the id of the widget.
 
     lib.cookie = {
         get: function () {
@@ -75,15 +75,18 @@ ADSAFE._intercept(function (id, dom, lib, bunch) {
 // We also add an edition function to the lib that gives the
 // widget access to the current edition string.
 
+    var now = Date.now || function () {
+        return new Date().getTime();
+    };
     if (id === 'JSLINT_') {
-        lib.jslint = function (source, options, output, then) {
+        lib.jslint = function (source, options, output) {
             output.___nodes___[0].innerHTML = "Working.";
-            var now, report, then = Date.now();
+            var after, report, before = now();
             JSLINT(source, options);
             report = JSLINT.report();
-            now = Date.now();
+            after = now();
             output.___nodes___[0].innerHTML = report;
-            return now - then;
+            return after - before;
         };
         lib.edition = function () {
             return JSLINT.edition;
