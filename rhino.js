@@ -28,8 +28,7 @@ Copyright (c) 2002 Douglas Crockford  (www.JSLint.com) Rhino Edition
                 var evil = eval;
                 try {
                     return evil('(' + s + ')');
-                }
-                catch (e) {
+                } catch (e) {
                     return;
                 }
             }
@@ -105,6 +104,7 @@ Copyright (c) 2002 Douglas Crockford  (www.JSLint.com) Rhino Edition
             moreopts = {},
             parseable = false,
             options = {
+                'continue': true,
                 bitwise: true,
                 eqeqeq: true,
                 immed: true,
@@ -115,7 +115,8 @@ Copyright (c) 2002 Douglas Crockford  (www.JSLint.com) Rhino Edition
                 regexp: true,
                 rhino: true,
                 undef: true,
-                white: true
+                white: true,
+                sloppy: true
             };
 
         do {
@@ -176,19 +177,16 @@ Copyright (c) 2002 Douglas Crockford  (www.JSLint.com) Rhino Edition
                 if (e) {
                     if (config.parseable) {
                         print(fn + ':' + e.line + ':' + e.character + ': ' + e.reason);
-                    }
-                    else {
+                    } else {
                         print('Lint at line ' + e.line + ' character ' +
-                                e.character + ': ' + e.reason);
+                            e.character + ': ' + e.reason);
                         print((e.evidence || '').replace(/^\s*(\S*(\s+\S+)*)\s*$/, "$1"));
                     }
                     print('');
                 }
             }
-            continue;
         } else {
             print("jslint: No problems found in " + fn);
-            continue;
         }
     }
     quit(0);

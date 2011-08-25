@@ -1,7 +1,10 @@
 #!/bin/sh
 # can't trust the return code, apparently
 
-output=`java -jar /usr/share/java/js.jar /usr/share/jslint/rhino.js /usr/share/jslint/jslint.js $@`
+filename=`readlink -f $0`
+dirname=`dirname "$filename"`
+
+output=`java -jar /usr/share/java/js.jar "$dirname/rhino.js" "$dirname/jslint.js" $@`
 echo "$output"
 exit=0
 
